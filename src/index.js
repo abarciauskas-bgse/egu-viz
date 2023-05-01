@@ -1,10 +1,10 @@
 import * as d3 from 'd3';
 import { textwrap } from 'd3-textwrap';
 
-const width = 1800;
+const width = 2000;
 const height = 800;
 const nodeRadius = 70;
-const spaceApart = 170;
+const spaceApart = 130;
 
 const convertListToObject = function(list) {
     return list.reduce((accumulator, current) => {
@@ -111,6 +111,7 @@ let nodes = [
         children: [{
             id: 'foundational-models-for-earth-science',
             text: 'Foundational Models for Earth Science (Rahul, MSFC)',
+            link: 'https://docs.google.com/presentation/d/1GxD62IUJwJBf4WBQkoYg8ZqkSAAD_FUY0bfl2IGjJQU/edit#slide=id.g135bd155e81_0_0',
             tags: ['earth-modeling', 'U.S.']
         }, {
             id: 'jedi',
@@ -191,44 +192,33 @@ function update() {
         .attr("cy", d => d.y)
         .attr("r", nodeRadius)
         .on("click", (event, d) => {
-            if (d.children && !d.expanded) {
-                console.log(d)                
+            if (d.children && !d.expanded) {               
                 let newNodes = [];
                 d.children.forEach((childNode, i) => {
                     let x = d.x - nodeRadius + i * spaceApart;
                     let y = d.y + nodeRadius * 2 + i * nodeRadius;
-                    let nodeData = childNode;
-                    nodeData['x'] = x;
-                    nodeData['y'] = y;
-                    newNodes.push(nodeData)
-                    nodesAsDict[childNode.id] = nodeData;                                     
+                    childNode['x'] = x;
+                    childNode['y'] = y;
+                    newNodes.push(childNode)
+                    nodesAsDict[childNode.id] = childNode;                                     
                 });
 
                 const newLinks = newNodes.map(n => ({source: d.id, target: n.id}));
             
                 nodes = nodes.concat(newNodes);
                 links = links.concat(newLinks);
-               
-                group.append('text')
-                    .data(nodes)
-                    .attr("x", d => d.x - nodeRadius + textPadding) // Set the x position of the text element
-                    .attr("y", d => d.y - nodeRadius + textPadding) // Set the y position of the text element
-                    .text(d.text); // Set the text content  
-            
-                // select all text nodes
-                let text = d3.selectAll('text');
-                // run the text wrapping function on all text nodes
-                text.call(wrap);
+
                 d['expanded'] = true;
                 update();
-            }        
+            }
+            d3.select(this).style("fill", 'grey');     
         });
 
     group.append('text')
         .data(nodes)
         .attr("x", d => d.x - nodeRadius + textPadding) // Set the x position of the text element
         .attr("y", d => d.y - nodeRadius + textPadding) // Set the y position of the text element
-        .attr("class", "text") // Set the font family
+        .classed("text", true) // Set the font family
         .text(d => d.text); // Set the text content  
 
     // select all text nodes
